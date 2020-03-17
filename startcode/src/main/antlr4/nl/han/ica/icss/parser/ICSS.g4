@@ -40,26 +40,24 @@ ASSIGNMENT_OPERATOR: ':=';
 
 //--- PARSER: ---
 /// Style
-stylesheet: stylesheet_body EOF;
-stylesheet_body: stylesheet_body_element*;
-stylesheet_body_element: variable | style_rule | if_statement;
-style_rule: selector OPEN_BRACE style_body CLOSE_BRACE;
-style_body: style_body_element*;
-style_body_element: style_statement | variable | if_statement; // | style_rule (add to support children)
-style_statement: property COLON value SEMICOLON;
+stylesheet: stylesheet_element+ EOF;
+stylesheet_element: variable | style_rule | if_statement;
+style_rule: selector OPEN_BRACE style_rule_element+ CLOSE_BRACE;
+style_rule_element: variable | declaration | if_statement;
+declaration: property COLON value SEMICOLON;
 selector: LOWER_IDENT | ID_IDENT | CLASS_IDENT;
 property: 'width' | 'height' | 'background-color' | 'color';
 
 /// Var
 numeric_value: PIXELSIZE | PERCENTAGE | SCALAR;
 boolean_value: TRUE | FALSE;
-literal: COLOR | boolean_value | expression;
-value: literal | variable_identifier;
+literal: COLOR | boolean_value;
+value: literal | variable_identifier | expression;
 variable_identifier: CAPITAL_IDENT;
 variable: variable_identifier ASSIGNMENT_OPERATOR value SEMICOLON;
 
 /// If
-if_statement: IF BOX_BRACKET_OPEN if_expression BOX_BRACKET_CLOSE OPEN_BRACE style_body CLOSE_BRACE;
+if_statement: IF BOX_BRACKET_OPEN if_expression BOX_BRACKET_CLOSE OPEN_BRACE stylesheet_element+ CLOSE_BRACE;
 if_expression: boolean_value | variable_identifier;
 
 /// Math
