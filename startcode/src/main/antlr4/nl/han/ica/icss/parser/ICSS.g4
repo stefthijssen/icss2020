@@ -48,18 +48,17 @@ declaration: property COLON value SEMICOLON;
 selector: LOWER_IDENT | ID_IDENT | CLASS_IDENT;
 property: 'width' | 'height' | 'background-color' | 'color';
 
+/// Math
+expression: numeric_value | variable_identifier | expression MUL expression | expression (PLUS | MIN) expression;
+
 /// Var
+variable: variable_identifier ASSIGNMENT_OPERATOR value SEMICOLON;
+variable_identifier: CAPITAL_IDENT;
+value: literal | variable_identifier | expression;
 numeric_value: PIXELSIZE | PERCENTAGE | SCALAR;
 boolean_value: TRUE | FALSE;
 literal: COLOR | boolean_value;
-value: literal | variable_identifier | expression;
-variable_identifier: CAPITAL_IDENT;
-variable: variable_identifier ASSIGNMENT_OPERATOR value SEMICOLON;
 
 /// If
-if_statement: IF BOX_BRACKET_OPEN if_expression BOX_BRACKET_CLOSE OPEN_BRACE stylesheet_element+ CLOSE_BRACE;
+if_statement: IF BOX_BRACKET_OPEN if_expression BOX_BRACKET_CLOSE OPEN_BRACE style_rule_element+ CLOSE_BRACE;
 if_expression: boolean_value | variable_identifier;
-
-/// Math
-operator: MUL | PLUS | MIN;
-expression: numeric_value | variable_identifier | expression operator expression;
