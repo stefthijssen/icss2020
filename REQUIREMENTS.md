@@ -20,13 +20,13 @@ PA04|Breid je grammatica en listener uit zodat je if-statements aankunt. In `lev
 
 ID  |Omschrijving|Prio |Punten|Gehaald?
 ----|--------------------------------------------------------------------|------|------|------
-CH00|Minimaal drie van onderstaande checks **moeten** zijn geïmplementeerd|Must|0|?
-CH01|Controleer of er geen variabelen worden gebruikt die niet gedefinieerd zijn.|Should|	4|?
-CH02|Controleer of de operanden van de operaties plus en min van gelijk type zijn en dat vermenigvuldigen enkel met scalaire waarden gebeurt. Je mag geen pixels bij percentages optellen bijvoorbeeld.|Should|4|?
-CH03|Controleer of er geen kleuren worden gebruikt in operaties (plus, min en keer).|Should|2|?
-CH04|Controleer of bij declaraties het type van de value klopt met de property. Declaraties zoals width: `#ff0000` of `color: 12px` zijn natuurlijk onzin.|Should|2|?
+CH00|Minimaal drie van onderstaande checks **moeten** zijn geïmplementeerd|Must|0|X
+CH01|Controleer of er geen variabelen worden gebruikt die niet gedefinieerd zijn.|Should|	4|X
+CH02|Controleer of de operanden van de operaties plus en min van gelijk type zijn en dat vermenigvuldigen enkel met scalaire waarden gebeurt. Je mag geen pixels bij percentages optellen bijvoorbeeld.|Should|4|X
+CH03|Controleer of er geen kleuren worden gebruikt in operaties (plus, min en keer).|Should|2|X
+CH04|Controleer of bij declaraties het type van de value klopt met de property. Declaraties zoals width: `#ff0000` of `color: 12px` zijn natuurlijk onzin.|Should|2|X
 CH05|Controleer of de conditie bij een if-statement van het type boolean is (zowel bij een variabele-referentie als een boolean literal)|Should|4|?
-CH06|Controleer of variabelen enkel binnen hun scope gebruikt worden|Should|4|?
+CH06|Controleer of variabelen enkel binnen hun scope gebruikt worden|Should|4|X
 
 ## Transformeren
 

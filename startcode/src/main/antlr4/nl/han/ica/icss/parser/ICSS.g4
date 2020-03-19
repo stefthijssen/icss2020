@@ -41,7 +41,7 @@ ASSIGNMENT_OPERATOR: ':=';
 //--- PARSER: ---
 /// Style
 stylesheet: stylesheet_element+ EOF;
-stylesheet_element: variable | style_rule | if_statement;
+stylesheet_element: variable | style_rule;
 style_rule: selector OPEN_BRACE style_rule_element+ CLOSE_BRACE;
 style_rule_element: variable | declaration | if_statement;
 declaration: property COLON value SEMICOLON;
