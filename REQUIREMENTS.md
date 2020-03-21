@@ -39,5 +39,5 @@ TR02|Implementeer de `RemoveIf `transformatie. Deze transformatie verwijdert all
 
 ID  |Omschrijving|Prio |Punten|Gehaald?
 ----|--------------------------------------------------------------------|------|------|------
-GE01|Implementeer de generator in nl.han.ica.icss.generator.Generator die de AST naar een CSS2-compliant string omzet.|Must|5|?
-GE02|Zorg dat de CSS met twee spaties inspringing per scopeniveau  gegenereerd wordt.|Must|5|?
+GE01|Implementeer de generator in nl.han.ica.icss.generator.Generator die de AST naar een CSS2-compliant string omzet.|Must|5|X
+GE02|Zorg dat de CSS met twee spaties inspringing per scopeniveau  gegenereerd wordt.|Must|5|X
