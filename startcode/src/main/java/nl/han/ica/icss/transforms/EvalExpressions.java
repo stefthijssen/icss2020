@@ -24,7 +24,7 @@ public class EvalExpressions implements Transform {
         evalExpressions(ast.root, null);
     }
 
-    private void evalExpressions(ASTNode node, ASTNode previous) {
+    private void evalExpressions(ASTNode node, ASTNode parent) {
         // Base case
         ArrayList<ASTNode> nodeChildren = node.getChildren();
 		if (nodeChildren.size() == 0) {
@@ -41,53 +41,53 @@ public class EvalExpressions implements Transform {
 		}
     }
 
-    private void enterEvaluation(ASTNode target, ASTNode previous) {
-        if (target instanceof Expression) {
-            Expression expression = (Expression) target;
-            evalExpression(expression, previous);
+    private void enterEvaluation(ASTNode node, ASTNode parent) {
+        if (node instanceof Expression) {
+            Expression expression = (Expression) node;
+            evalExpression(expression, parent);
         }
 
-        if (target instanceof Stylerule || target instanceof IfClause) {
+        if (node instanceof Stylerule || node instanceof IfClause) {
             // Add local scope
             variableValues.add(new HashMap<String,Literal>());
         }
 
         // Add new variable assignment to current scope
-        if (target instanceof VariableAssignment) {
-            VariableAssignment variableAssignment = (VariableAssignment) target;
+        if (node instanceof VariableAssignment) {
+            VariableAssignment variableAssignment = (VariableAssignment) node;
             variableValues.getLast().put(variableAssignment.name.name, getLiteralFromExpression(variableAssignment.expression));
         }
     }
 
-    private void exitEvaluation(ASTNode target, ASTNode previous) {
-        if (target instanceof Stylerule || target instanceof IfClause) {
+    private void exitEvaluation(ASTNode node, ASTNode parent) {
+        if (node instanceof Stylerule || node instanceof IfClause) {
             // Remove local scope
             variableValues.removeLast();
         }
     }
 
-    private void evalExpression(Expression expression, ASTNode previous) {
+    private void evalExpression(Expression expression, ASTNode parent) {
         if (expression instanceof VariableReference) {
             VariableReference variableRefrence = (VariableReference) expression;
-            replaceVariableWithLiteral(variableRefrence, previous);
+            replaceVariableWithLiteral(variableRefrence, parent);
         }
 
         if (expression instanceof Operation) {
             Operation operation = (Operation) expression;
-            replaceOperationWithLiteral(operation, previous);
+            replaceOperationWithLiteral(operation, parent);
         }
     }
 
-    private void replaceVariableWithLiteral(VariableReference variableReference, ASTNode previous) {
+    private void replaceVariableWithLiteral(VariableReference variableReference, ASTNode parent) {
         Literal literal = getVariableLiteral(variableReference.name);
-        previous.removeChild(variableReference);
-        previous.addChild(literal);
+        parent.removeChild(variableReference);
+        parent.addChild(literal);
     }
 
-    private void replaceOperationWithLiteral(Operation operation, ASTNode previous) {
-        Literal literal = transformOperationToLiteral(operation);
-        previous.removeChild(operation);
-        previous.addChild(literal);
+    private void replaceOperationWithLiteral(Operation operation, ASTNode parent) {
+        Literal literal = getLiteralFromOperation(operation);
+        parent.removeChild(operation);
+        parent.addChild(literal);
     }
 
     private Literal getLiteralFromExpression(Expression expression) {
@@ -95,20 +95,58 @@ public class EvalExpressions implements Transform {
             return (Literal) expression;
         }
 
-        if (expression instanceof VariableReference) {
-            VariableReference variableRefrence = (VariableReference) expression;
-            return getVariableLiteral(variableRefrence.name);
+        if (expression instanceof Operation) {
+            Operation operation = (Operation) expression;
+            return getLiteralFromOperation(operation);
         }
 
-        Operation operation = (Operation) expression;
-        return transformOperationToLiteral(operation);
+        VariableReference variableRefrence = (VariableReference) expression;
+        return getVariableLiteral(variableRefrence.name);
     }
 
-    private Literal transformOperationToLiteral(Operation operation) {
-        if (operation instanceof AddOperation) {
+    private Literal getLiteralFromOperation(Operation operation) {
+        Literal lhsLiteral = getLiteralFromExpression(operation.lhs);
+        Literal rhsLiteral = getLiteralFromExpression(operation.rhs);
+        int operationValue = calculateOperation(operation, lhsLiteral, rhsLiteral);
 
+        if (lhsLiteral instanceof PixelLiteral || rhsLiteral instanceof PixelLiteral) {
+            return new PixelLiteral(operationValue);
         }
-        return new PixelLiteral(10); // TODO this is temp
+        if (lhsLiteral instanceof PercentageLiteral || rhsLiteral instanceof PercentageLiteral) {
+            return new PercentageLiteral(operationValue);
+        }
+        return new ScalarLiteral(operationValue);
+    }
+
+    private int calculateOperation(Operation operation, Literal lhsLiteral, Literal rhsLiteral) {
+        // Add
+        if (operation instanceof AddOperation) {
+            return getValueFromLiteral(lhsLiteral) + getValueFromLiteral(rhsLiteral);
+        }
+
+        // Subtract
+        if (operation instanceof SubtractOperation) {
+            return getValueFromLiteral(lhsLiteral) - getValueFromLiteral(rhsLiteral);
+        }
+
+        // Multiply
+        return getValueFromLiteral(lhsLiteral) * getValueFromLiteral(rhsLiteral);
+    }
+
+    private int getValueFromLiteral(Literal literal) {
+        if (literal instanceof PixelLiteral) {
+            PixelLiteral pixelLiteral = (PixelLiteral) literal;
+            return pixelLiteral.value;
+        }
+        if (literal instanceof PercentageLiteral) {
+            PercentageLiteral percentageLiteral = (PercentageLiteral) literal;
+            return percentageLiteral.value;
+        }
+        if (literal instanceof ScalarLiteral) {
+            ScalarLiteral scalarLiteral = (ScalarLiteral) literal;
+            return scalarLiteral.value;
+        }
+        return 0;
     }
 
     private Literal getVariableLiteral(String key) {

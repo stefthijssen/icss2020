@@ -136,7 +136,7 @@ public class Checker {
     }
 
     private ExpressionType validateOperation(Operation operation, Operation parent) {
-        // Try and get the expression type
+        // Get the expression type
         Expression lhs = operation.lhs;
         Expression rhs = operation.rhs;
         ExpressionType lhsType = getExpressionType(lhs);

@@ -1,6 +1,7 @@
 package nl.han.ica.icss.transforms;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import nl.han.ica.icss.ast.*;
 import nl.han.ica.icss.ast.literals.BoolLiteral;
@@ -9,14 +10,13 @@ public class RemoveIf implements Transform {
 
     @Override
     public void apply(AST ast) {
-
-
+        removeIf(ast.root);
     }
 
     public void removeIf(ASTNode node) {
         if (node instanceof IfClause) {
-            IfClause stylerule = (IfClause) node;
-            ArrayList<ASTNode> body = stylerule.body;
+            IfClause ifClause = (IfClause) node;
+            ArrayList<ASTNode> body = ifClause.body;
             checkBodyForIfStatements(body, node);
         }
 
@@ -39,20 +39,27 @@ public class RemoveIf implements Transform {
     }
 
     private void checkBodyForIfStatements(ArrayList<ASTNode> body, ASTNode previous) {
+        ArrayList<ASTNode> addList = new ArrayList<ASTNode>();
+        ArrayList<ASTNode> removeList = new ArrayList<ASTNode>();
         for (ASTNode bodyNode : body) {
             if (bodyNode instanceof IfClause) {
                 IfClause ifClause = (IfClause) bodyNode;
                 BoolLiteral condition = (BoolLiteral) ifClause.conditionalExpression;
-                if (condition.value) {
-                    ArrayList<ASTNode> ifClauseBody = ifClause.body;
-                    for (ASTNode ifClauseBodyNode : ifClauseBody) {
-                        previous.addChild(ifClauseBodyNode);
-                    }
-                    previous.removeChild(ifClause);
+                if (condition.value == true) {
+                    addList.addAll(ifClause.body);
+                    // Add ifClause to an array that deletes them later to avoid ConcurrentModificationException
+                    removeList.add(bodyNode);
                 } else {
-                    previous.removeChild(ifClause);
+                    // Add ifClause to an array that deletes them later to avoid ConcurrentModificationException
+                    removeList.add(bodyNode);
                 }
             }
+        }
+        for (ASTNode bodyNode : addList) {
+            previous.addChild(bodyNode);
+        }
+        for (ASTNode ifClause : removeList) {
+            body.remove(ifClause);
         }
     }
 }
