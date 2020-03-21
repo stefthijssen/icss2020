@@ -25,7 +25,7 @@ public class Checker {
 
     public void check(AST ast) {
         variableTypes = new LinkedList<>();
-        // Add global variables to scope
+        // Add global scope
         variableTypes.add(new HashMap<String,ExpressionType>());
 
         checkNode(ast.root);
@@ -79,7 +79,6 @@ public class Checker {
                 }
             }
             if (!foundVariable) {
-                // TODO: Optional deconstruct this error into two seperate errors.
                 node.setError("CH01, CH06: Variable " + variableName + " not declared in it's local scope or global scope");
             }
             return;
@@ -88,119 +87,102 @@ public class Checker {
         // CH04: Check if the value matches the type for an declaration
         if (node instanceof Declaration) {
             Declaration declaration = (Declaration) node;
+            ExpressionType expressionType = getExpressionType(declaration.expression);
             if (declaration.property.name.matches("width|height")) {
-                if (declaration.expression instanceof VariableReference) {
-                    VariableReference variableRefrence = (VariableReference) declaration.expression;
-                    ExpressionType type = getVariableType(variableRefrence.name);
-                    // This check is unneeded but nice to have for the flow of the code
-                    if (type == null) {
-                        // This error wil be caught in the VariableRefrence node
-                        return;
-                    }
-                    if (type == ExpressionType.COLOR) {
-                        node.setError("CH04: Value type: Color does not match the property for the declaration");
-                    }
+                if (expressionType == ExpressionType.COLOR) {
+                    node.setError("CH04: Value type: Color does not match the property for the declaration. The type shouldn't be COLOR but is COLOR");
                     return;
                 }
-                if (declaration.expression instanceof ColorLiteral) {
-                    node.setError("CH04: Value type: Color does not match the property for the declaration");
-                    return;
-                }
+                return;
             }
             if (declaration.property.name.matches("color|background-color")) {
-                if (declaration.expression instanceof VariableReference) {
-                    VariableReference variableRefrence = (VariableReference) declaration.expression;
-                    ExpressionType type = getVariableType(variableRefrence.name);
-                    if (type == null) {
-                        // This error wil be caught later in the VariableRefrence node
-                        return;
-                    }
-                    if (type != ExpressionType.COLOR) {
-                        node.setError("CH04: Value type does not match the property for the declaration");
-                    }
+                if (expressionType != ExpressionType.COLOR) {
+                    node.setError("CH04: Value type does not match the property for the declaration. The type should be COLOR and is " + expressionType);
                     return;
                 }
-                if (!(declaration.expression instanceof ColorLiteral)) {
-                    node.setError("CH04: Value type does not match the property for the declaration");
-                    return;
-                }
-            }
-        }
-
-        // CH02: Check if plus operations are done with the same type
-        if (node instanceof AddOperation) {
-            AddOperation addOperation = (AddOperation) node;
-            Expression lhs = addOperation.lhs;
-            Expression rhs = addOperation.rhs;
-            ExpressionType lhsType = getExpressionType(lhs);
-            ExpressionType rhsType = getExpressionType(rhs);
-            // If they are null that means the variables weren't defined. This check will be done in the variable refrence node
-            if (lhsType == null || rhsType == null) return;
-            if (lhsType == rhsType || lhsType == ExpressionType.UNDEFINED || rhsType == ExpressionType.UNDEFINED) return;
-            node.setError("CH02: The types of the left hand side and the right hand side of the operator are not equal");
-            return;
-        }
-
-        // CH02: Check if subtract operations are done with the same type
-        if (node instanceof SubtractOperation) {
-            SubtractOperation subtractOperation = (SubtractOperation) node;
-            Expression lhs = subtractOperation.lhs;
-            Expression rhs = subtractOperation.rhs;
-            ExpressionType lhsType = getExpressionType(lhs);
-            ExpressionType rhsType = getExpressionType(rhs);
-            // If they are null that means the variables weren't defined. This check will be done in the variable refrence node
-            if (lhsType == null || rhsType == null) return;
-            // Because i don't know how to give errors for UNDEFINED i just allow them.
-            if (lhsType == rhsType || lhsType == ExpressionType.UNDEFINED || rhsType == ExpressionType.UNDEFINED) return;
-            node.setError("CH02: The types of the left hand side and the right hand side of the operator are not equal");
-        }
-
-        // CH02: Check if multiply operations contain atleast one scalar
-        if (node instanceof MultiplyOperation) {
-            MultiplyOperation multiplyOperation = (MultiplyOperation) node;
-            Expression lhs = multiplyOperation.lhs;
-            Expression rhs = multiplyOperation.rhs;
-            ExpressionType lhsType = getExpressionType(lhs);
-            ExpressionType rhsType = getExpressionType(rhs);
-            // If they are null that means the variables weren't defined. This check will be done in the variable refrence node
-            if (lhsType == null || rhsType == null) return;
-            if (lhsType != ExpressionType.SCALAR || rhsType != ExpressionType.SCALAR
-                // Because i don't know how to give errors for UNDEFINED i just allow them.
-                || lhsType == ExpressionType.UNDEFINED || rhsType == ExpressionType.UNDEFINED) {
                 return;
             }
-            node.setError("CH02: Multiply operation contains no scalars");
         }
 
-        // CH03: Check if the operation doesn't use colors
         if (node instanceof Operation) {
             Operation operation = (Operation) node;
-            if (operation.lhs instanceof ColorLiteral && operation.rhs instanceof ColorLiteral) {
-                node.setError("CH03: Left hand side and right hand side of operation is a color");
+            ExpressionType lhs = getExpressionType(operation.lhs);
+            ExpressionType rhs = getExpressionType(operation.rhs);
+            // CH03: Check if the operation doesn't use colors
+            if (lhs == ExpressionType.COLOR || rhs == ExpressionType.COLOR) {
+                node.setError("CH03: Colors are not allowed in operations");
+                return;
+            };
+            if (lhs == ExpressionType.BOOL || lhs == ExpressionType.BOOL) {
+                node.setError("CH03: Booleans are not allowed in operations");
                 return;
             }
-            if (operation.lhs instanceof ColorLiteral) {
-                node.setError("CH03: Left hand side of operation is a color");
-                return;
-            }
-            if (operation.rhs instanceof ColorLiteral) {
-                node.setError("CH03: Right hand side of operation is a color");
-                return;
-            }
+            // CH02: Check if the operation uses valid operands.
+            validateOperation(operation, operation);
         }
 
-         // CH05:
+         // CH05: Check if the condition is a bool
          if (node instanceof IfClause) {
             IfClause ifClause = (IfClause) node;
             Expression conditionalExpression = (Expression) ifClause.conditionalExpression;
             ExpressionType conditionalExpressionType = getExpressionType(conditionalExpression);
             // If it is null that means the variable wasn't defined. This check will be done in the variable refrence node
-            if (conditionalExpressionType== null) return;
+            if (conditionalExpressionType == null) return;
             if (conditionalExpressionType != ExpressionType.BOOL) {
                 node.setError("CH05: If statement condition is not of type boolean");
             }
             return;
         }
+    }
+
+    private ExpressionType validateOperation(Operation operation, Operation parent) {
+        // Try and get the expression type
+        Expression lhs = operation.lhs;
+        Expression rhs = operation.rhs;
+        ExpressionType lhsType = getExpressionType(lhs);
+        ExpressionType rhsType = getExpressionType(rhs);
+
+        // If the left hand side expression type is UNDEFINED it means it's an operation so get the type of it recursively.
+        if (lhsType == ExpressionType.UNDEFINED) {
+            Operation lhsOperation = (Operation) lhs;
+            lhsType = validateOperation(lhsOperation, operation);
+            if (lhsType == null) {
+                return null;
+            }
+        }
+
+        // If the right hand side expression type is UNDEFINED it means it's an operation so get the type of it recursively.
+        if (rhsType == ExpressionType.UNDEFINED) {
+            Operation rhsOperation = (Operation) rhs;
+            rhsType = validateOperation(rhsOperation , operation);
+            if (rhsType == null) {
+                return null;
+            }
+        }
+
+        // If they are null that means the variables weren't defined. This check will be done in the variable refrence node
+        if (lhsType == null || rhsType == null) {
+            parent.setError("CH02: Unable to verrify correctness of operation due to invalid variables.");
+            return null;
+        }
+
+        if (operation instanceof MultiplyOperation) {
+            if (lhsType != ExpressionType.SCALAR || rhsType != ExpressionType.SCALAR) {
+                // Prefer returning a type that isn't a scalar
+                return lhsType != ExpressionType.SCALAR ? lhsType : rhsType;
+            }
+            parent.setError("CH02: MultiplyOperation should atleast contain one scalar");
+            return null;
+        }
+
+        if (operation instanceof AddOperation || operation instanceof SubtractOperation) {
+            if (lhsType == rhsType) return lhsType;
+            parent.setError("CH02: Invalid subtract or add operation " + lhsType + " does not match with " + rhsType);
+            return null;
+        }
+
+        parent.setError("CH02: Invalid operation " + lhsType + " does not match with " + rhsType);
+        return null;
     }
 
     private ExpressionType getVariableType(String key) {
