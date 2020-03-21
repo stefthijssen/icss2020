@@ -45,7 +45,9 @@ public class RemoveIf implements Transform {
                 IfClause ifClause = (IfClause) bodyNode;
                 BoolLiteral condition = (BoolLiteral) ifClause.conditionalExpression;
                 if (condition.value == true) {
+                    // Call recursion on the new if statement.
                     removeIf(bodyNode);
+                    // Add the body to a temporary list so it can be copied over later to avoid ConcurrentModificationException11
                     addList.addAll(ifClause.body);
                     // Add ifClause to an array that deletes them later to avoid ConcurrentModificationException
                     removeList.add(bodyNode);
