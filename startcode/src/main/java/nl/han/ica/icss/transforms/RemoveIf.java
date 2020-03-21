@@ -1,7 +1,6 @@
 package nl.han.ica.icss.transforms;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import nl.han.ica.icss.ast.*;
 import nl.han.ica.icss.ast.literals.BoolLiteral;
@@ -46,6 +45,7 @@ public class RemoveIf implements Transform {
                 IfClause ifClause = (IfClause) bodyNode;
                 BoolLiteral condition = (BoolLiteral) ifClause.conditionalExpression;
                 if (condition.value == true) {
+                    removeIf(bodyNode);
                     addList.addAll(ifClause.body);
                     // Add ifClause to an array that deletes them later to avoid ConcurrentModificationException
                     removeList.add(bodyNode);
