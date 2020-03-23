@@ -38,14 +38,22 @@ public class Generator {
 
 	public void enterGenerateNode(ASTNode node, StringBuilder builder) {
 		if (node instanceof Stylerule) {
+			Stylerule stylerule = (Stylerule) node;
+			ArrayList<Selector> selectors = stylerule.selectors;
+			builder.append(selectors.get(0).toString());
+			for (int i = 1; i < selectors.size(); i++) {
+				builder.append(", ")
+					.append(selectors.get(i));
+			}
+			builder.append(" {\n");
 			scopeLevel++;
 		}
 
-		if (node instanceof Selector) {
-			Selector selector = (Selector) node;
-			builder.append(selector.toString())
-					.append(" {\n");
-		}
+		// if (node instanceof Selector) {
+		// 	Selector selector = (Selector) node;
+		// 	builder.append(selector.toString())
+		// 			.append(" {\n");
+		// }
 
 		if (node instanceof Declaration) {
 			addTabs(builder);

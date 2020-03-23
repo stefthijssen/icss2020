@@ -81,7 +81,7 @@ public class ASTListener extends ICSSBaseListener {
 
 	// Create Selector and connect to stylerule.
 	@Override
-	public void enterSelector(ICSSParser.SelectorContext ctx) {
+	public void enterSelector_element(ICSSParser.Selector_elementContext ctx) {
 		// Check if the selector is a tag
 		TerminalNode lower_ident = ctx.LOWER_IDENT();
 		if (lower_ident != null) {

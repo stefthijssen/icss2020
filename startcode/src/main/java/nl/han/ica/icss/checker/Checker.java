@@ -104,6 +104,22 @@ public class Checker {
             }
         }
 
+        if (node instanceof Stylerule) {
+            Stylerule stylerule = (Stylerule) node;
+            ArrayList<Selector> selectors = stylerule.selectors;
+            if (selectors.size() == 0) {
+                return;
+            }
+            for (int i = 0; i < selectors.size(); i++) {
+                for (int j = i+1; j < selectors.size()-(i+1); j++) {
+                    if (selectors.get(i) == selectors.get(j)) {
+                        node.setError("EU01: Duplicate selector " + selectors.get(i));
+                        return;
+                    }
+                }
+            }
+        }
+
         if (node instanceof Operation) {
             Operation operation = (Operation) node;
             ExpressionType lhs = getExpressionType(operation.lhs);
@@ -176,6 +192,10 @@ public class Checker {
         }
 
         if (operation instanceof AddOperation || operation instanceof SubtractOperation) {
+            if (lhsType == ExpressionType.SCALAR || rhsType == ExpressionType.SCALAR) {
+                parent.setError("CH02: Invalid subtract or add operation Scalars are not allowed");
+                return null;
+            }
             if (lhsType == rhsType) return lhsType;
             parent.setError("CH02: Invalid subtract or add operation " + lhsType + " does not match with " + rhsType);
             return null;

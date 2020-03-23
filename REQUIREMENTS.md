@@ -41,3 +41,12 @@ ID  |Omschrijving|Prio |Punten|Gehaald?
 ----|--------------------------------------------------------------------|------|------|------
 GE01|Implementeer de generator in nl.han.ica.icss.generator.Generator die de AST naar een CSS2-compliant string omzet.|Must|5|X
 GE02|Zorg dat de CSS met twee spaties inspringing per scopeniveau  gegenereerd wordt.|Must|5|X
+
+
+## Uitbreiding
+Hieronder staat de uitdaging die ik met Dennis Breuker heb afgesproken.
+
+ID  |Omschrijving|Prio|Punten|Gehaald?
+----|--------------------------------------------------------------------|------|------|------
+EU01|Een stylerule mag meerdere selectors hebben. Deze worden gescheiden door een comma. Voorbeeld: `p, h1 { <body> }` de gehele body geld dan voor die regel. Er moet ook gecheckt worden of er geen dubbele selectors voorkomen. `p, p { <body> }` mag dus niet.|Could|5|?
+EU02|Een stylerule mag in de body van een stylerule zitten. `.menu { p { width: 100px; } }` mag dus opgeschreven worden. Dit word dan vertaald naar compileable css. Hier een voorbeeld van: `.menu p { width: 100px; }`.|Could|5|?

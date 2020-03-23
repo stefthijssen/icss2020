@@ -45,7 +45,8 @@ stylesheet_element: variable | style_rule;
 style_rule: selector OPEN_BRACE style_rule_element+ CLOSE_BRACE;
 style_rule_element: variable | declaration | if_statement;
 declaration: property COLON value SEMICOLON;
-selector: LOWER_IDENT | ID_IDENT | CLASS_IDENT;
+selector: selector_element | selector_element ',' selector;
+selector_element: LOWER_IDENT | ID_IDENT | CLASS_IDENT;
 property: 'width' | 'height' | 'background-color' | 'color';
 
 /// Math
