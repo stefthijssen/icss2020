@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class Stylerule extends ASTNode {
-	
+
 	public ArrayList<Selector> selectors = new ArrayList<>();
+	public ArrayList<Selector> parentSelectors = new ArrayList<>();
 	public ArrayList<ASTNode> body = new ArrayList<>();
 
     public Stylerule() { }
@@ -15,7 +16,17 @@ public class Stylerule extends ASTNode {
     	this.selectors = new ArrayList<>();
     	this.selectors.add(selector);
     	this.body = body;
-    }
+	}
+
+	public Stylerule(ArrayList<Selector> selectors, ArrayList<ASTNode> body, ArrayList<Selector> parentSelectors) {
+		this.selectors = selectors;
+		this.body = body;
+		this.parentSelectors = parentSelectors;
+	}
+
+	public Stylerule copy() {
+		return new Stylerule(this.selectors, this.body, this.parentSelectors);
+	}
 
     @Override
 	public String getNodeLabel() {
@@ -30,6 +41,13 @@ public class Stylerule extends ASTNode {
 		return children;
 	}
 
+	// Added for EU02
+	public ASTNode addParentSelector(Selector parent) {
+		parentSelectors.add(parent);
+
+		return this;
+	}
+
     @Override
     public ASTNode addChild(ASTNode child) {
 		if(child instanceof Selector)
@@ -38,7 +56,14 @@ public class Stylerule extends ASTNode {
         	body.add(child);
 
 		return this;
-    }
+	}
+
+	@Override
+	public ASTNode removeChild(ASTNode child) {
+		body.remove(child);
+		return this;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;

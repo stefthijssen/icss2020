@@ -43,7 +43,7 @@ ASSIGNMENT_OPERATOR: ':=';
 stylesheet: stylesheet_element+ EOF;
 stylesheet_element: variable | style_rule;
 style_rule: selector OPEN_BRACE style_rule_element+ CLOSE_BRACE;
-style_rule_element: variable | declaration | if_statement;
+style_rule_element: variable | declaration | if_statement | style_rule;
 declaration: property COLON value SEMICOLON;
 selector: selector_element | selector_element ',' selector;
 selector_element: LOWER_IDENT | ID_IDENT | CLASS_IDENT;

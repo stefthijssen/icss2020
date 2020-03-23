@@ -1,3 +1,6 @@
+# Intro
+Voor PO_Programmeer taal heb ik de requirements gemaakt die in dit bestand zijn benoemd. Mocht iets niet duidelijk zijn of missen in deze inlevering dan kan je ook eventueel kijken in mijn github repository hiervan. https://github.com/stefthijssen/icss2020
+
 # Requirements
 ## Algemene eisen
 

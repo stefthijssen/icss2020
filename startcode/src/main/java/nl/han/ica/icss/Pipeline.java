@@ -9,6 +9,8 @@ import nl.han.ica.icss.parser.ICSSLexer;
 import nl.han.ica.icss.parser.ICSSParser;
 import nl.han.ica.icss.transforms.EvalExpressions;
 import nl.han.ica.icss.transforms.RemoveIf;
+import nl.han.ica.icss.transforms.ReplaceNestedStylerule;
+
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.atn.ATNConfigSet;
 import org.antlr.v4.runtime.dfa.DFA;
@@ -107,6 +109,7 @@ public class Pipeline implements ANTLRErrorListener {
 
         (new EvalExpressions()).apply(ast);
         (new RemoveIf()).apply(ast);
+        (new ReplaceNestedStylerule()).apply(ast);
 
         transformed = errors.isEmpty();
     }
