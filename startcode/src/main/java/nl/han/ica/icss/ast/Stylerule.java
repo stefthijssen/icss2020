@@ -18,14 +18,12 @@ public class Stylerule extends ASTNode {
     	this.body = body;
 	}
 
-	public Stylerule(ArrayList<Selector> selectors, ArrayList<ASTNode> body, ArrayList<Selector> parentSelectors) {
+	public Stylerule(Selector selector, ArrayList<ASTNode> body, ArrayList<Selector> parentSelectors) {
+		ArrayList<Selector> selectors = new ArrayList<Selector>();
+		selectors.add(selector);
 		this.selectors = selectors;
 		this.body = body;
 		this.parentSelectors = parentSelectors;
-	}
-
-	public Stylerule copy() {
-		return new Stylerule(this.selectors, this.body, this.parentSelectors);
 	}
 
     @Override
@@ -37,6 +35,7 @@ public class Stylerule extends ASTNode {
 		ArrayList<ASTNode> children = new ArrayList<>();
 		children.addAll(selectors);
 		children.addAll(body);
+		children.addAll(parentSelectors);
 
 		return children;
 	}

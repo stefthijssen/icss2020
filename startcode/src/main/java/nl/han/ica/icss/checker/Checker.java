@@ -104,15 +104,17 @@ public class Checker {
             }
         }
 
+        // EU01: Check if there are no duplicate selectors
         if (node instanceof Stylerule) {
             Stylerule stylerule = (Stylerule) node;
             ArrayList<Selector> selectors = stylerule.selectors;
-            if (selectors.size() == 0) {
+            if (selectors.size() <= 1) {
                 return;
             }
+            System.out.println(selectors.get(0).equals(selectors.get(1)));
             for (int i = 0; i < selectors.size(); i++) {
-                for (int j = i+1; j < selectors.size()-(i+1); j++) {
-                    if (selectors.get(i) == selectors.get(j)) {
+                for (int j = i+1; j < selectors.size()-i; j++) {
+                    if (selectors.get(i).equals(selectors.get(j))) {
                         node.setError("EU01: Duplicate selector " + selectors.get(i));
                         return;
                     }

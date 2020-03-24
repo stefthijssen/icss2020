@@ -36,24 +36,16 @@ public class Generator {
 		exitGenerateNode(node, builder);
 	}
 
-	public void enterGenerateNode(ASTNode node, StringBuilder builder) {
+	private void enterGenerateNode(ASTNode node, StringBuilder builder) {
 		if (node instanceof Stylerule) {
 			Stylerule stylerule = (Stylerule) node;
 			ArrayList<Selector> selectors = stylerule.selectors;
-			builder.append(selectors.get(0).toString());
-			for (int i = 1; i < selectors.size(); i++) {
-				builder.append(", ")
-					.append(selectors.get(i));
-			}
+			ArrayList<Selector> parentSelectors = stylerule.parentSelectors;
+			if (parentSelectors.size() > 0) buildParentSelectors(builder, parentSelectors);
+			buildSelectors(builder, selectors);
 			builder.append(" {\n");
 			scopeLevel++;
 		}
-
-		// if (node instanceof Selector) {
-		// 	Selector selector = (Selector) node;
-		// 	builder.append(selector.toString())
-		// 			.append(" {\n");
-		// }
 
 		if (node instanceof Declaration) {
 			addTabs(builder);
@@ -81,7 +73,7 @@ public class Generator {
 		}
 	}
 
-	public void exitGenerateNode(ASTNode node, StringBuilder builder) {
+	private void exitGenerateNode(ASTNode node, StringBuilder builder) {
 		if (node instanceof Stylerule) {
 			scopeLevel--;
 			builder.append("}\n\n");
@@ -94,6 +86,23 @@ public class Generator {
 		if (node instanceof Literal) {
 			builder.append(";");
 		}
+	}
+
+	private void buildSelectors(StringBuilder builder, ArrayList<Selector> selectors) {
+		builder.append(selectors.get(0).toString());
+		for (int i = 1; i < selectors.size(); i++) {
+			builder.append(", ")
+				.append(selectors.get(i));
+		}
+	}
+
+	private void buildParentSelectors(StringBuilder builder, ArrayList<Selector> parentSelectors) {
+		builder.append(parentSelectors.get(0).toString());
+		for (int i = 1; i < parentSelectors.size(); i++) {
+			builder.append(" ")
+				.append(parentSelectors.get(i));
+		}
+		builder.append(" ");
 	}
 
 	private void addTabs(StringBuilder builder) {
